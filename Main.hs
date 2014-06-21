@@ -6,6 +6,10 @@ import Graphics.UI.SDL as SDL
 import Data.Word
 import Control.Monad.State.Lazy
 import Control.Monad.Reader
+import System.Log.Logger
+import System.Log.Handler.Simple
+import System.Log.Handler (setFormatter)
+import System.Log.Formatter
 
 
 data AppData = AppData {
@@ -30,12 +34,17 @@ newtype AppEnv a = AppEnv { runEnv :: ReaderT AppConfig AppState a }
 
 main :: IO ()
 main = do
+    setupLogger "./a.log"
+    info "Starting."
     withInit [InitEverything] $ do
+        info "Starting2."
         (config, state) <- Main.init
         runApp config state $ do
             render     -- initial render
             loop
         return ()
+    info "Finished."
+    finish
 
 init :: IO (AppConfig, AppData)
 init = do
@@ -100,3 +109,29 @@ drawRect surf rect r g b = do
     color <- mapRGB' surf r g b
     fillRect surf (Just rect) color
     return ()
+
+logFormat = "$utcTime $prio $loggername: $msg"
+loggerName = "hsloggerSDLtest"
+
+defaultFormatter = simpleLogFormatter logFormat
+
+setupLogger logFileName = do
+    handler <- fileHandler logFileName INFO
+    let handler' = setFormatter handler defaultFormatter
+    updateGlobalLogger loggerName $ addHandler handler'
+    updateGlobalLogger loggerName $ setLevel INFO
+    
+finish = removeAllHandlers
+
+{-
+info mes = return ()
+warning mes = return ()
+debug mes = return ()
+error mes = return ()
+notice mes = return ()
+-}
+info = infoM loggerName
+warning = warningM loggerName
+debug = debugM loggerName
+error = errorM loggerName
+notice = noticeM loggerName
