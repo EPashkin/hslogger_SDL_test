@@ -86,6 +86,7 @@ drawRects = do
 handleEvent :: Event -> AppEnv ()
 handleEvent VideoExpose = render
 handleEvent (MouseButtonDown mx my ButtonLeft) = do
+    liftIO $ notice $ show x ++ "x"++ show y
     put $ appData x y
     pushEvent_ VideoExpose
 --    return ()
