@@ -34,6 +34,7 @@ newtype AppEnv a = AppEnv { runEnv :: ReaderT AppConfig AppState a }
 
 main :: IO ()
 main = do
+    removeAllHandlers
     setupLogger "./a.log"
     info "Starting."
     withInit [InitEverything] $ do
